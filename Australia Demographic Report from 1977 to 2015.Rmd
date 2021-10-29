@@ -1,0 +1,552 @@
+---
+title: "Australia Demographic Report from 1977 to 2015"
+author: "Abilash Rao Vavilala"
+date: "11/09/2021"
+output:
+  html_document: default
+   
+---
+
+## Introduction:
+
+Australia is a multicultural country with Six States and Ten federal territories. Australian Bureau of Staistics is independent statutory agency of the Australian Government responsible for statistical collection and analysis, and for giving evidence-based advice to federal, state and territory governments. The ABS collects and analyses statistics on economic, population, environmental and social issues, publishing many on their website. The ABS also operates the national Census of Population and Housing that occurs every five years. ABS has been collecting data from 1901 and most of their data is public and can be used for research purpose. I wrangled Data from their website [ABS Website](https://www.abs.gov.au/websitedbs/D3310114.nsf/Home/2016%20TableBuilder). My analysis focus more in seeing the pattern in which Australia is Changing.  
+
+* In this report we will analyse the following
+  +  Number of people born in every state from 1977 to 2015.
+  +  Number of deaths in every state from 1977 to 2015.
+  +  Which state is more preferred for migration by Australians.
+  +  Which states is more preferred by International Migrants.
+  +  Fertility Rate from 1971 to 2015.
+  +  Comparing number of births in each state with National Average.
+  +  Comparing number of deaths in each state with National Average.
+  +  Average number of migrants migrating to Australia and which state is more prefered by Immigrants.
+  +  Comparing Fertility rates of each state with National Average.
+
+
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(ggrepel)
+library(viridis)
+library(directlabels)
+library(ggthemes)
+library(reshape2)
+
+Aus_stats <- read.csv("c:/users/60132690/Documents/Aus_stats.csv")
+
+Aus_stats$`Number of Births` <- Aus_stats$Number.of.Births
+Aus_stats$`Number of Deaths` <- Aus_stats$Number.of.Deaths
+
+```
+## New South Walse Report:
+
+New South wales (NSW) is a  state on the east coast of Australia. It borders three other states, Queensland to the north, Victoria to the south, and South Australia to the west. Its coast borders the Coral and Tasman Seas to the east. The Australian Capital Territory is an enclave within the state. New South Wales' state capital is Sydney, which is also Australia's most populous city. In June 2020, the population of New South Wales was over 8.1 million, making it Australia's most populous state. Just under two-thirds of the state's population, 5.3 million, live in the Greater Sydney area. The demonym for inhabitants of New South Wales is New South Welshmen.
+
+```{r fig1, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+NSW <- Aus_stats %>% filter(State == "NSW")
+NSW_birth_death <- NSW %>% select(Year, `Number of Births`, `Number of Deaths`)
+NSW_melt_birth_death <- melt(NSW_birth_death, id = "Year")
+NSW_melt_birth_death <- na.omit(NSW_melt_birth_death)
+NSW_migration_info <- NSW %>% select(Year, Inter_state_migration, International_migration)
+NSW_melt_data_migration <- melt(NSW_migration_info, id = "Year")
+NSW_melt_data_migration <- na.omit(NSW_melt_data_migration)
+NSW_migration_report <- NSW_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n  for NSW") + theme_economist()
+
+ggplotly(NSW_migration_report)
+
+
+```
+
+## Migration Analysis:
+
+From the above image we can clearly say that NSW is most preferred State for International Migrants moving to Australia. however, when it comes to people in NSW they have been moving away from NSW and people from other states don't find NSW attractive to move in.
+
+
+## Birth and Death in New South Walse:
+
+```{r fig2, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar <- NSW_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in NSW from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar)
+
+```
+
+## Fertility Rate in NSW from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does NSW have a idle fertility rate of 2.1. 
+
+
+```{r fig3, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+NSW_fertility <- NSW %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in NSW from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(NSW_fertility) 
+```
+
+
+## Victoria Report:
+
+
+Victoria is a state in  southeastern Australia. It is the second-smallest state with a land area of 227,444 km2 (87,817 sq mi) and the most densely populated state in Australia (28 per km2). Victoria is bordered with New South Wales to the north and South Australia to the west, and is bounded by the Bass Strait to the south (with the exception of a small land border with Tasmania located along Boundary Islet), the Great Australian Bight portion of the Southern Ocean to the southwest, and the Tasman Sea (a marginal sea of the South Pacific Ocean) to the southeast. The state encompasses a range of climates and geographical features from its temperate coastal and central regions to the Victorian Alps in the north-east and the semi-arid north-west. Victoria has a population of over 6.6 million, the majority of which is concentrated in the central south area surrounding Port Phillip Bay, and in particular in the metropolitan area of Greater Melbourne, Victoria's state capital and largest city and also Australia's second-largest city, where over three quarters of the Victorian population live. The state is home to four of Australia's 20 largest cities: Melbourne, Geelong, Ballarat and Bendigo. The population is diverse, with 35.1% of inhabitants being immigrants. 
+
+## Migration Analysis for Victoria:
+
+
+Victoria is one of the diverse state in Australia. 35.1% of inhabitants being immigrants. We will see number of Internation Immigrants migrated to Victoria and number of Inter state migrants migrated to Victoria.
+
+```{r fig4, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+
+VIC <- Aus_stats %>% filter(State == "VIC")
+VIC_birth_death <- VIC %>% select(Year, `Number of Births`, `Number of Deaths`)
+VIC_melt_birth_death <- melt(VIC_birth_death, id = "Year")
+VIC_melt_birth_death <- na.omit(VIC_melt_birth_death)
+VIC_migration_info <- VIC %>% select(Year, Inter_state_migration, International_migration)
+VIC_melt_data_migration <- melt(VIC_migration_info, id = "Year")
+VIC_melt_data_migration <- na.omit(VIC_melt_data_migration)
+VIC_migration_report <- VIC_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n  for Vicoria") + theme_economist()
+
+ggplotly(VIC_migration_report)
+```
+
+
+
+Victoria is presenting very similar trend to NSW. Victoria is more prefereed by International Immigrants and many Victorians are moving to another state in Australia. Victoria is more preferred by International Immigrants.
+
+
+## Birth and Death in Victoria:
+
+```{r fig5, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_vic <- VIC_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in Victoria from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_vic)
+
+```
+
+## Fertility Rate in Victoria from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does Victoria have a idle fertility rate of 2.1. 
+
+```{r fig6, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+VIC_fertility <- VIC %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in NSW from 1971 to 2015") + ylab("Fertility Rate")  
+ggplotly(VIC_fertility) 
+```
+
+
+## Queensland Report
+
+Queensland is a is a state situated in northeastern Australia, and is the second-largest and third-most populous Australian state. It is bordered by the Northern Territory, South Australia, and New South Wales to the west, south-west and south respectively. To the east, Queensland is bordered by the Coral Sea and the Pacific Ocean. To its north is the Torres Strait, separating the Australian mainland from Papua New Guinea. With an area of 1,852,642 square kilometres (715,309 sq mi), Queensland is the world's sixth-largest sub-national entity, and is larger than all but 15 countries. Due to its size, Queensland's geographical features and climates are diverse, including tropical rainforests, rivers, coral reefs, mountain ranges and sandy beaches in its tropical and sub-tropical coastal regions, as well as deserts and savanna in the semi-arid and desert climatic regions of its interior.
+
+Queensland has a population of over 5.1 million, concentrated along the coast and particularly in South East Queensland. The capital and largest city in the state is Brisbane, Australia's third-largest city. Ten of Australia's thirty largest cities are located in Queensland, with the largest outside Brisbane being the Gold Coast, the Sunshine Coast, Townsville, Cairns and Toowoomba. A high proportion of the state's population is multicultural, with 28.9% of inhabitants being immigrants.
+
+
+
+
+## Migration Report for Queensland:
+
+Unlike New South Wales and Victoria, Queensland has attracted more Inter-state migrants in 1980s and 2006. from 2007 Queensland is favoured more by International migrants. from 2007 Number of inter-state migrants got reduced.
+
+```{r fig7, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+QLD <- Aus_stats %>% filter(State == "QLD")
+QLD_birth_death <- QLD %>% select(Year, `Number of Births`, `Number of Deaths`)
+QLD_melt_birth_death <- melt(QLD_birth_death, id = "Year")
+QLD_melt_birth_death <- na.omit(QLD_melt_birth_death)
+QLD_migration_info <- QLD %>% select(Year, Inter_state_migration, International_migration)
+QLD_melt_data_migration <- melt(QLD_migration_info, id = "Year")
+QLD_melt_data_migration <- na.omit(QLD_melt_data_migration)
+QLD_migration_report <- QLD_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n  for Queensland") + theme_economist()
+
+ggplotly(QLD_migration_report)
+
+
+```
+
+## Birth and Death Numbers in Queensland.
+
+
+```{r fig8, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_QLD <- QLD_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in Queensland from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_QLD)
+
+```
+
+
+## Fertility Rate in Queensland from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does Queensland have a idle fertility rate of 2.1.
+
+```{r fig9, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+QLD_fertility <- QLD %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in Queensland from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(QLD_fertility) 
+```
+
+
+
+## Western Australia Report:
+
+Western Australia (abbreviated as WA) is a state occupying the western 32.9 percent of the land area of Australia excluding external territories.[3] It is bounded by the Indian Ocean to the north and west, and the Southern Ocean to the south, the Northern Territory to the north-east, and South Australia to the south-east. Western Australia is Australia's largest state, with a total land area of 2,527,013 square kilometers (975,685 sq mi),[3] and the second-largest country subdivision in the world, surpassed only by Russia's Sakha Republic. As of 2017, the state has about 2.6 million inhabitants – around 11 percent of the national total – of whom the vast majority (92 percent) live in the south-west corner; 79 percent of the population lives in the Perth area,[4] leaving the remainder of the state sparsely populated.
+
+## Western Australia Migration analysis:
+
+From the beginning there is relatively less migration to western Australia compares to NSW or Victoria. since 2007 we can see International migrants preferring Western Australia.
+
+```{r fig10, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+WA <- Aus_stats %>% filter(State == "WA")
+WA_birth_death <- WA %>% select(Year, `Number of Births`, `Number of Deaths`)
+WA_melt_birth_death <- melt(WA_birth_death, id = "Year")
+WA_melt_birth_death <- na.omit(WA_melt_birth_death)
+WA_migration_info <- WA %>% select(Year, Inter_state_migration, International_migration)
+WA_melt_data_migration <- melt(WA_migration_info, id = "Year")
+WA_melt_data_migration <- na.omit(WA_melt_data_migration)
+WA_migration_report <- WA_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n  for Western Australia") + theme_economist()
+
+ggplotly(WA_migration_report)
+
+
+```
+
+## Birth and Death Numbers in Western Australia:
+
+
+```{r fig11, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_WA <- WA_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in Western Australia  from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_WA)
+
+```
+
+
+## Fertility Rate in Western Australia from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does Western Australia have a idle fertility rate of 2.1.
+
+```{r fig12, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+WA_fertility <- WA %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in  Western Australia from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(WA_fertility) 
+```
+
+
+## South Australia Report:
+
+
+South Australia is a state in the southern central part of Australia. It covers some of the most arid parts of the country. With a total land area of 983,482 square kilometres (379,725 sq mi), it is the fourth-largest of Australia's states and territories by area, and fifth largest by population. It has a total of 1.77 million people, and its population is the second most highly centralized in Australia, after Western Australia, with more than 77 percent of South Australians living in the capital, Adelaide, or its environs. Other population centers in the state are relatively small; Mount Gambier, the second largest centre, has a population of 28,684.
+
+
+
+## South Australia Migration analysis:
+
+South Australia population is largely concentrated in and around Adelaide. We can see that from the beginning South Australia was not prefered place for migration by Australians. there is a relative small international migration for long. this has changed in 
+2007, for the first time more than 10,000 people migrated to South Australia in 2007.
+
+```{r fig13, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+SA <- Aus_stats %>% filter(State == "SA")
+SA_birth_death <- SA %>% select(Year, `Number of Births`, `Number of Deaths`)
+SA_melt_birth_death <- melt(SA_birth_death, id = "Year")
+SA_melt_birth_death <- na.omit(SA_melt_birth_death)
+SA_migration_info <- SA %>% select(Year, Inter_state_migration, International_migration)
+SA_melt_data_migration <- melt(SA_migration_info, id = "Year")
+SA_melt_data_migration <- na.omit(SA_melt_data_migration)
+SA_migration_report <- SA_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n  for South Australia") + theme_economist()
+
+ggplotly(SA_migration_report)
+
+
+```
+
+
+
+
+## Birth and Death Numbers in South Australia:
+
+
+```{r fig14, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_SA <- SA_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in South Australia  from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_SA)
+
+```
+
+
+## Fertility Rate in South Australia from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does South Australia have a idle fertility rate of 2.1.
+
+```{r fig15, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+SA_fertility <- SA %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in  South Australia from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(SA_fertility) 
+```
+
+
+## Tasmania Report:
+
+Tasmania is an island state of Australia. It is located 240 km (150 mi) to the south of the Australian mainland, separated from it by Bass Strait. The state encompasses the main island of Tasmania, the 26th-largest island in the world, and the surrounding 1000 islands. It is Australia's least populated state, with 541,000 residents as of September 2020. The state capital and largest city is Hobart, with around 40 percent of the population living in the Greater Hobart area.
+
+
+
+## Tasmania Migration Analysis:
+
+Hobart is the largest city in Tasmania and 40% of population lives in Greater Hobart Area. from the figure below you can see that many people have left Tasmania i snot much prefered by Australians to migrate. International Migrants started favourting Tasmania since 2007.
+
+```{r fig16, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+TAS <- Aus_stats %>% filter(State == "TAS")
+TAS_birth_death <- TAS %>% select(Year, `Number of Births`, `Number of Deaths`)
+TAS_melt_birth_death <- melt(TAS_birth_death, id = "Year")
+TAS_melt_birth_death <- na.omit(TAS_melt_birth_death)
+TAS_migration_info <- TAS %>% select(Year, Inter_state_migration, International_migration)
+TAS_melt_data_migration <- melt(TAS_migration_info, id = "Year")
+TAS_melt_data_migration <- na.omit(TAS_melt_data_migration)
+TAS_migration_report <- TAS_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n Tasmania") + theme_economist()
+
+ggplotly(TAS_migration_report)
+
+
+```
+
+
+## Tasmania Birth and Death Report:
+
+
+```{r fig17, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_TAS <- TAS_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in Tasmania  from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_TAS)
+
+```
+
+
+## Fertility Rate in Tasmania from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does Tasmania have a idle fertility rate of 2.1.
+
+```{r fig18, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+TAS_fertility <- TAS %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in Tasmania from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(TAS_fertility) 
+```
+
+
+## Northern Territory Report:
+
+Northern Territory  is an Australian territory in the central and central northern regions of Australia. Northern Territory shares its borders with Western Australia to the west (129th meridian east), South Australia to the south (26th parallel south), and Queensland to the east (138th meridian east). To the north, the territory looks out to the Timor Sea, the Arafura Sea and the Gulf of Carpentaria, including Western New Guinea and other islands of the Indonesian archipelago.
+
+The NT covers 1,349,129 square kilometres (520,902 sq mi), making it the third-largest Australian federal division, and the 11th-largest country subdivision in the world. It is sparsely populated, with a population of only 246,500 – fewer than half as many people as Tasmania – the majority of whom live in the capital city of Darwin.
+
+
+## Migration Report for Northern Territory:
+
+```{r fig19, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+NT <- Aus_stats %>% filter(State == "NT")
+NT_birth_death <- NT %>% select(Year, `Number of Births`, `Number of Deaths`)
+NT_melt_birth_death <- melt(NT_birth_death, id = "Year")
+NT_melt_birth_death <- na.omit(NT_melt_birth_death)
+NT_migration_info <- NT %>% select(Year, Inter_state_migration, International_migration)
+NT_melt_data_migration <- melt(NT_migration_info, id = "Year")
+NT_melt_data_migration <- na.omit(NT_melt_data_migration)
+NT_migration_report <- NT_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n Northern Territory") + theme_economist()
+
+ggplotly(NT_migration_report)
+
+
+```
+
+## Northern Territory Birth and Death Report:
+
+
+```{r fig20, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_NT <- NT_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in Northern Territory  from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_NT)
+
+```
+
+
+## Fertility Rate in Northern Terriotry from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does Northern Territory have a idle fertility rate of 2.1.
+
+```{r fig21, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+NT_fertility <- NT %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in Northern Territory from 1971 to 2015") + ylab("Fertility Rate")
+ggplotly(NT_fertility) 
+```
+
+
+
+## Australian Capital Territory Report:
+
+
+Australian Capital Territory is a  landlocked federal territory of Australia containing the national capital Canberra and some surrounding townships. It is located in southeastern Australian mainland as an enclave completely within the state of New South Wales. Founded after Federation as the seat of government for the new nation, all important institutions of the Australian Government are headquartered in the territory.
+
+While the overwhelming majority of the population reside in the city of Canberra in the ACT's north-east, the territory also includes some surrounding townships such as Williamsdale, Naas, Uriarra, Tharwa and Hall. The ACT also includes the Namadgi National Park which comprises the majority of land area of the territory. Despite a common misconception, the Jervis Bay Territory is not part of the ACT although the laws of the Australian Capital Territory apply as if Jervis Bay did form part of the ACT.[7] The territory has a relatively dry, continental climate experiencing warm to hot summers and cool to cold winters.
+
+
+## Migration Report for Australian Capital Territory:
+
+```{r fig22, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+ 
+ 
+ACT <- Aus_stats %>% filter(State == "ACT")
+ACT_birth_death <- ACT %>% select(Year, `Number of Births`, `Number of Deaths`)
+ACT_melt_birth_death <- melt(ACT_birth_death, id = "Year")
+ACT_melt_birth_death <- na.omit(ACT_melt_birth_death)
+ACT_migration_info <- ACT %>% select(Year, Inter_state_migration, International_migration)
+ACT_melt_data_migration <- melt(ACT_migration_info, id = "Year")
+ACT_melt_data_migration <- na.omit(ACT_melt_data_migration)
+ACT_migration_report <- ACT_melt_data_migration %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ylab("Number of immigrants") + ggtitle("Inter-state and International Migration report\n Australian Capital Territory") + theme_economist()
+
+ggplotly(ACT_migration_report)
+
+
+```
+
+## Australian Capital Territory Birth and Death Report:
+
+
+```{r fig23, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+birth_death_bar_ACT <- ACT_melt_birth_death %>% ggplot(aes(Year, value, fill = variable)) + geom_bar(stat = "identity", position = "dodge") + ggtitle("Number of Births and Deaths in  Australian Capital Territory  from 1977 to 2015") + theme_excel()
+
+ggplotly(birth_death_bar_ACT)
+
+```
+
+
+## Fertility Rate in Australian Capital Territory from 1971 to 2015:
+
+The total fertility rate in a specific year is defined as the total number of children that would be born to each woman if she were to live to the end of her child-bearing years and give birth to children in alignment with the prevailing age-specific fertility rates. It is calculated by totaling the age-specific fertility rates as defined over five-year intervals. Assuming no net migration and unchanged mortality, a total fertility rate of 2.1 children per woman ensures a broadly stable population. Together with mortality and migration, fertility is an element of population growth, reflecting both the causes and effects of economic and social developments. The reasons for the dramatic decline in birth rates during the past few decades include postponed family formation and child-bearing and a decrease in desired family sizes. This indicator is measured in children per woman. We will see does  Australian Capital Territory have a idle fertility rate of 2.1.
+
+```{r fig24, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+ACT_fertility <- ACT %>% ggplot(aes(Year, fertility_rate)) + geom_line() + geom_point() + theme_economist() + ggtitle(" Fertility Rate in Australian Capital Territory from 1971 to 2015") + ylab("Fertility Rate") 
+ggplotly(ACT_fertility) 
+```
+
+
+## National Average and comparing states to National Average:
+
+
+We know the stats for each stat. now lets compare them to the national average. for this we need to find national average for every year and compare that to each state.
+
+
+
+# Fertility Rate of each state and compare that to national average.
+
+```{r, fig25, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+fertility_by_year_aus <- aggregate(fertility_rate ~ Year, data = Aus_stats, mean)
+
+aus_stat_test <- left_join(Aus_stats, fertility_by_year_aus, by = "Year")
+
+Number_of_births <- aggregate(`Number of Births` ~ Year, data = Aus_stats, mean)
+Number_of_deaths <- aggregate(`Number of Deaths` ~ Year, data = Aus_stats, mean)
+Inter_state_migration_national_average <- aggregate(Inter_state_migration ~ Year, data = Aus_stats, mean)
+International_migration_national_average <- aggregate(International_migration ~ Year, data = Aus_stats, mean)
+Aus_national_average <- full_join(Number_of_births, Number_of_deaths, by = "Year")
+Aus_national_average <- full_join(Aus_national_average, fertility_by_year_aus, by = "Year")
+Aus_national_average <- full_join(Aus_national_average, Inter_state_migration_national_average,by = "Year")
+Aus_national_average <- full_join(Aus_national_average, International_migration_national_average, by = "Year")
+Aus_national_average$State <- "National Average"
+aus_stat_national_average <- full_join(Aus_stats, Aus_national_average)
+
+s <- aus_stat_national_average %>% ggplot(aes(Year, fertility_rate, group = State, colour = State)) + geom_line() + geom_point()  +  theme_economist() + ggtitle("Fertility Rate for each state and National Average")
+
+ggplotly(s)
+
+```
+
+## Number of Immigrants in all states and National Average:
+
+From the figure below you can say that many international immigrants prefer NSW and Victoria. both the states always got more International immigrants than national average.
+
+```{r, fig26, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+aus_international_migration <- aus_stat_national_average %>% ggplot(aes(Year, International_migration, group = State, colour = State)) + geom_line() + geom_point()  +  theme_economist() + ggtitle("International Migration to each state and National Average")
+
+ggplotly(aus_international_migration)
+```
+
+## Number of Inter_state immigrants to each state and national average:
+
+When it comes to migration inside the country many Australians prefer moving to Queensland. People live in NSW and Victoria are the ones who migrate to Queensland. 
+
+```{r, fig27, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+aus_national_migration <- aus_stat_national_average %>% ggplot(aes(Year, Inter_state_migration, group = State, colour = State)) + geom_line() + geom_point()  +  theme_economist() + ggtitle("Inter-state Migration to each state and National Average")
+
+ggplotly(aus_national_migration)
+
+```
+
+## Births in Australia and National Average:
+
+let's compare number of births in each state and national average.
+
+```{r, fig28, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+aus_national_birth <- aus_stat_national_average %>% ggplot(aes(Year, `Number of Births`, group = State, colour = State)) + geom_line() + geom_point()  +  theme_economist() + ggtitle("Number of Births in Australia and National Average")
+
+ggplotly(aus_national_birth)
+
+```
+
+
+## Deaths in Australia and National Average:
+
+
+
+```{r, fig29, fig.height = 6, fig.width = 12, fig.align = "right"}
+
+
+aus_national_death <- aus_stat_national_average %>% ggplot(aes(Year, `Number of Deaths`, group = State, colour = State)) + geom_line() + geom_point()  +  theme_economist() + ggtitle("Number of Deaths in Australia and National Average")
+
+ggplotly(aus_national_death)
+
+```
+
+
+
+
+
+
